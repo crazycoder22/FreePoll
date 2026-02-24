@@ -29,6 +29,7 @@ export default async function EditPollPage({
           title: poll.title,
           description: poll.description ?? "",
           closesAt: poll.closesAt ? poll.closesAt.toISOString().slice(0, 16) : "",
+          mode: poll.mode as "POLL" | "LIKER",
           options: poll.options.map((o) => ({
             label: o.label,
             description: o.description ?? "",

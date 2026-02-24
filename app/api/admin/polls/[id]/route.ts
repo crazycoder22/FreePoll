@@ -24,7 +24,7 @@ export async function PUT(
 ) {
   const { id } = await params;
   const body = await request.json();
-  const { title, description, status, closesAt, options, fields } = body;
+  const { title, description, status, closesAt, mode, options, fields } = body;
 
   const poll = await prisma.poll.update({
     where: { id },
@@ -32,6 +32,7 @@ export async function PUT(
       ...(title !== undefined && { title }),
       ...(description !== undefined && { description }),
       ...(status !== undefined && { status }),
+      ...(mode !== undefined && { mode: mode === "LIKER" ? "LIKER" : "POLL" }),
       ...(closesAt !== undefined && {
         closesAt: closesAt ? new Date(closesAt) : null,
       }),

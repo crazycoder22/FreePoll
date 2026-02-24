@@ -26,18 +26,24 @@ export default async function PollPage({
     poll.status = "CLOSED";
   }
 
-  // Check if voter has already voted
+  // Check if voter has already voted / liked
   const cookieStore = await cookies();
   const voterToken = cookieStore.get("fp_voter_token")?.value;
   let hasVoted = false;
   let votedOptionId: string | null = null;
+  let likedOptionIds: string[] = [];
 
   if (voterToken) {
-    const vote = await prisma.vote.findUnique({
-      where: { pollId_voterToken: { pollId: id, voterToken } },
+    const votes = await prisma.vote.findMany({
+      where: { pollId: id, voterToken },
+      select: { optionId: true },
     });
-    hasVoted = !!vote;
-    votedOptionId = vote?.optionId ?? null;
+    hasVoted = votes.length > 0;
+    if (poll.mode === "LIKER") {
+      likedOptionIds = votes.map((v) => v.optionId);
+    } else {
+      votedOptionId = votes[0]?.optionId ?? null;
+    }
   }
 
   return (
@@ -77,6 +83,7 @@ export default async function PollPage({
         ) : (
           <VotingForm
             pollId={id}
+            mode={poll.mode as "POLL" | "LIKER"}
             options={poll.options.map((o) => ({
               id: o.id,
               label: o.label,
@@ -90,6 +97,7 @@ export default async function PollPage({
             }))}
             hasVoted={hasVoted}
             votedOptionId={votedOptionId}
+            likedOptionIds={likedOptionIds}
           />
         )}
       </main>

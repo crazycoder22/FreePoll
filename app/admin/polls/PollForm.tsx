@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
+type PollMode = "POLL" | "LIKER";
+
 interface OptionDraft {
   label: string;
   description: string;
@@ -20,6 +22,7 @@ interface PollDraft {
   title: string;
   description: string;
   closesAt: string;
+  mode?: PollMode;
   options: OptionDraft[];
   fields?: FieldDraft[];
 }
@@ -34,6 +37,7 @@ export default function PollForm({ poll }: { poll?: PollDraft }) {
   const [title, setTitle] = useState(poll?.title ?? "");
   const [description, setDescription] = useState(poll?.description ?? "");
   const [closesAt, setClosesAt] = useState(poll?.closesAt ?? "");
+  const [mode, setMode] = useState<PollMode>(poll?.mode ?? "POLL");
   const [options, setOptions] = useState<OptionDraft[]>(
     poll?.options && poll.options.length >= 2
       ? poll.options
@@ -96,13 +100,13 @@ export default function PollForm({ poll }: { poll?: PollDraft }) {
     }
 
     const validFields = fields.filter((f) => f.label.trim());
-
     setSaving(true);
 
     const payload = {
       title,
       description,
       closesAt: closesAt || null,
+      mode,
       options: validOptions,
       fields: validFields,
     };
@@ -168,15 +172,56 @@ export default function PollForm({ poll }: { poll?: PollDraft }) {
         </div>
       </div>
 
+      {/* Poll type */}
+      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 space-y-3">
+        <h2 className="font-semibold text-gray-700">Poll type</h2>
+        <div className="grid grid-cols-2 gap-3">
+          <button
+            type="button"
+            onClick={() => setMode("POLL")}
+            className={`flex flex-col items-start gap-1 rounded-xl border-2 p-4 text-left transition-all ${
+              mode === "POLL"
+                ? "border-blue-500 bg-blue-50"
+                : "border-gray-100 hover:border-gray-300"
+            }`}
+          >
+            <span className="text-xl">☑️</span>
+            <span className="font-semibold text-sm text-gray-900">Poll</span>
+            <span className="text-xs text-gray-500">Voters pick exactly one option</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setMode("LIKER")}
+            className={`flex flex-col items-start gap-1 rounded-xl border-2 p-4 text-left transition-all ${
+              mode === "LIKER"
+                ? "border-rose-500 bg-rose-50"
+                : "border-gray-100 hover:border-gray-300"
+            }`}
+          >
+            <span className="text-xl">❤️</span>
+            <span className="font-semibold text-sm text-gray-900">Liker</span>
+            <span className="text-xs text-gray-500">Voters can heart multiple options</span>
+          </button>
+        </div>
+      </div>
+
       {/* Options */}
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 space-y-4">
-        <h2 className="font-semibold text-gray-700">Poll options</h2>
-        <p className="text-sm text-gray-500">Add at least 2 options. Each can have an image and a description.</p>
+        <div>
+          <h2 className="font-semibold text-gray-700">
+            {mode === "LIKER" ? "Items to like" : "Poll options"}
+          </h2>
+          <p className="text-sm text-gray-500 mt-0.5">
+            Add at least 2 options. Each can have an image and a description.
+          </p>
+        </div>
 
         {options.map((opt, i) => (
           <div key={i} className="border border-gray-100 rounded-xl p-4 space-y-3 relative">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-600">Option {i + 1}</span>
+              <span className="text-sm font-medium text-gray-600">
+                {mode === "LIKER" ? `Item ${i + 1}` : `Option ${i + 1}`}
+              </span>
               {options.length > 2 && (
                 <button
                   type="button"
@@ -250,7 +295,7 @@ export default function PollForm({ poll }: { poll?: PollDraft }) {
           onClick={addOption}
           className="w-full py-2 border-2 border-dashed border-gray-200 rounded-xl text-sm text-gray-500 hover:border-blue-300 hover:text-blue-600 transition-colors"
         >
-          + Add option
+          + Add {mode === "LIKER" ? "item" : "option"}
         </button>
       </div>
 

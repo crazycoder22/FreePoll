@@ -11,6 +11,7 @@ model Poll {
   title       String
   description String?
   status      PollStatus   @default(DRAFT)
+  mode        PollMode     @default(POLL)
   closesAt    DateTime?
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
@@ -41,7 +42,7 @@ model Vote {
   option     PollOption  @relation(fields: [optionId], references: [id], onDelete: Cascade)
   voterInfo  VoterInfo[]
 
-  @@unique([pollId, voterToken])
+  @@unique([pollId, optionId, voterToken])
 }
 
 model PollField {
@@ -68,4 +69,9 @@ enum PollStatus {
   DRAFT
   ACTIVE
   CLOSED
+}
+
+enum PollMode {
+  POLL
+  LIKER
 }

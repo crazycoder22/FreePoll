@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 interface PollActionsProps {
-  poll: { id: string; status: string };
+  poll: { id: string; status: string; mode: string };
 }
 
 export default function PollActions({ poll }: PollActionsProps) {

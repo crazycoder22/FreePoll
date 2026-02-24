@@ -13,7 +13,7 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   const body = await request.json();
-  const { title, description, closesAt, options, fields } = body;
+  const { title, description, closesAt, mode, options, fields } = body;
 
   if (!title || !options || options.length < 2) {
     return NextResponse.json(
@@ -26,6 +26,7 @@ export async function POST(request: NextRequest) {
     data: {
       title,
       description: description || null,
+      mode: mode === "LIKER" ? "LIKER" : "POLL",
       closesAt: closesAt ? new Date(closesAt) : null,
       options: {
         create: options.map(

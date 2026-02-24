@@ -53,15 +53,20 @@ export default async function DashboardPage() {
                 <div className="flex items-center gap-2 flex-wrap">
                   <h2 className="font-semibold text-gray-900 truncate">{poll.title}</h2>
                   <StatusBadge status={poll.status} />
+                  {poll.mode === "LIKER" && (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-rose-50 text-rose-600">
+                      ❤️ Liker
+                    </span>
+                  )}
                 </div>
                 <p className="text-sm text-gray-500 mt-0.5">
-                  {poll._count.options} options · {poll._count.votes} votes
+                  {poll._count.options} options · {poll._count.votes} {poll.mode === "LIKER" ? "likes" : "votes"}
                   {poll.closesAt && (
                     <span> · closes {new Date(poll.closesAt).toLocaleDateString()}</span>
                   )}
                 </p>
               </div>
-              <PollActions poll={{ id: poll.id, status: poll.status }} />
+              <PollActions poll={{ id: poll.id, status: poll.status, mode: poll.mode }} />
             </div>
           ))}
         </div>

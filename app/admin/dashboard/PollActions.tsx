@@ -59,6 +59,14 @@ export default function PollActions({ poll }: PollActionsProps) {
           View results
         </Link>
       )}
+      {(poll.status === "ACTIVE" || poll.status === "CLOSED") && (
+        <Link
+          href={`/admin/polls/${poll.id}/responses`}
+          className="px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+        >
+          Responses
+        </Link>
+      )}
       <Link
         href={`/admin/polls/${poll.id}`}
         className="px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"

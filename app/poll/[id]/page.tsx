@@ -12,7 +12,10 @@ export default async function PollPage({
 
   const poll = await prisma.poll.findUnique({
     where: { id },
-    include: { options: { orderBy: { order: "asc" } } },
+    include: {
+      options: { orderBy: { order: "asc" } },
+      fields: { orderBy: { order: "asc" } },
+    },
   });
 
   if (!poll) notFound();
@@ -79,6 +82,11 @@ export default async function PollPage({
               label: o.label,
               description: o.description,
               imageUrl: o.imageUrl,
+            }))}
+            fields={poll.fields.map((f) => ({
+              id: f.id,
+              label: f.label,
+              required: f.required,
             }))}
             hasVoted={hasVoted}
             votedOptionId={votedOptionId}

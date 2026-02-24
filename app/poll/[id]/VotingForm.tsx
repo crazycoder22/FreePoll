@@ -10,9 +10,16 @@ interface Option {
   imageUrl: string | null;
 }
 
+interface Field {
+  id: string;
+  label: string;
+  required: boolean;
+}
+
 interface VotingFormProps {
   pollId: string;
   options: Option[];
+  fields: Field[];
   hasVoted: boolean;
   votedOptionId: string | null;
 }
@@ -20,6 +27,7 @@ interface VotingFormProps {
 export default function VotingForm({
   pollId,
   options,
+  fields,
   hasVoted: initialHasVoted,
   votedOptionId: initialVotedOptionId,
 }: VotingFormProps) {
@@ -28,16 +36,40 @@ export default function VotingForm({
   const [votedOptionId, setVotedOptionId] = useState(initialVotedOptionId);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [fieldValues, setFieldValues] = useState<Record<string, string>>(
+    () => Object.fromEntries(fields.map((f) => [f.id, ""]))
+  );
+
+  function updateFieldValue(fieldId: string, value: string) {
+    setFieldValues((prev) => ({ ...prev, [fieldId]: value }));
+  }
 
   async function handleSubmit() {
     if (!selected) return;
+
+    // Validate required fields
+    for (const field of fields) {
+      if (field.required && !fieldValues[field.id]?.trim()) {
+        setError(`"${field.label}" is required.`);
+        return;
+      }
+    }
+
     setSubmitting(true);
     setError("");
+
+    const voterInfo: Record<string, string> = {};
+    for (const field of fields) {
+      const val = fieldValues[field.id]?.trim();
+      if (val) {
+        voterInfo[field.id] = val;
+      }
+    }
 
     const res = await fetch(`/api/polls/${pollId}/vote`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ optionId: selected }),
+      body: JSON.stringify({ optionId: selected, voterInfo }),
     });
 
     if (res.ok) {
@@ -92,6 +124,27 @@ export default function VotingForm({
           />
         ))}
       </div>
+
+      {fields.length > 0 && (
+        <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
+          <h3 className="text-sm font-semibold text-gray-700">Your information</h3>
+          {fields.map((field) => (
+            <div key={field.id}>
+              <label className="block text-sm font-medium text-gray-600 mb-1">
+                {field.label}
+                {field.required && <span className="text-red-500 ml-0.5">*</span>}
+              </label>
+              <input
+                type="text"
+                value={fieldValues[field.id] ?? ""}
+                onChange={(e) => updateFieldValue(field.id, e.target.value)}
+                className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-white text-gray-900 placeholder:text-gray-400 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder={field.label}
+              />
+            </div>
+          ))}
+        </div>
+      )}
 
       {error && <p className="text-sm text-red-600">{error}</p>}
 

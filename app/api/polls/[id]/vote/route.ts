@@ -9,14 +9,17 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id: pollId } = await params;
-  const { optionId } = await request.json();
+  const { optionId, voterInfo } = await request.json();
 
   if (!optionId) {
     return NextResponse.json({ error: "optionId is required" }, { status: 400 });
   }
 
   // Verify poll is active
-  const poll = await prisma.poll.findUnique({ where: { id: pollId } });
+  const poll = await prisma.poll.findUnique({
+    where: { id: pollId },
+    include: { fields: { orderBy: { order: "asc" } } },
+  });
   if (!poll) return NextResponse.json({ error: "Poll not found" }, { status: 404 });
 
   // Auto-close if past deadline
@@ -27,6 +30,19 @@ export async function POST(
 
   if (poll.status !== "ACTIVE") {
     return NextResponse.json({ error: "This poll is not accepting votes" }, { status: 403 });
+  }
+
+  // Validate required fields
+  for (const field of poll.fields) {
+    if (field.required) {
+      const val = voterInfo?.[field.id]?.trim();
+      if (!val) {
+        return NextResponse.json(
+          { error: `"${field.label}" is required` },
+          { status: 400 }
+        );
+      }
+    }
   }
 
   // Get or create voter token
@@ -53,8 +69,23 @@ export async function POST(
     return NextResponse.json({ error: "Invalid option" }, { status: 400 });
   }
 
+  // Create vote with voter info
+  const voterInfoData = poll.fields
+    .filter((f) => voterInfo?.[f.id]?.trim())
+    .map((f) => ({
+      fieldId: f.id,
+      value: voterInfo[f.id].trim(),
+    }));
+
   await prisma.vote.create({
-    data: { pollId, optionId, voterToken },
+    data: {
+      pollId,
+      optionId,
+      voterToken,
+      ...(voterInfoData.length > 0 && {
+        voterInfo: { create: voterInfoData },
+      }),
+    },
   });
 
   const response = NextResponse.json({ ok: true });

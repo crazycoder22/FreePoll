@@ -10,15 +10,22 @@ interface OptionDraft {
   imageUrl: string;
 }
 
+interface FieldDraft {
+  label: string;
+  required: boolean;
+}
+
 interface PollDraft {
   id?: string;
   title: string;
   description: string;
   closesAt: string;
   options: OptionDraft[];
+  fields?: FieldDraft[];
 }
 
 const emptyOption = (): OptionDraft => ({ label: "", description: "", imageUrl: "" });
+const emptyField = (): FieldDraft => ({ label: "", required: false });
 
 export default function PollForm({ poll }: { poll?: PollDraft }) {
   const isEdit = !!poll?.id;
@@ -31,6 +38,9 @@ export default function PollForm({ poll }: { poll?: PollDraft }) {
     poll?.options && poll.options.length >= 2
       ? poll.options
       : [emptyOption(), emptyOption()]
+  );
+  const [fields, setFields] = useState<FieldDraft[]>(
+    poll?.fields && poll.fields.length > 0 ? poll.fields : []
   );
   const [uploading, setUploading] = useState<number | null>(null);
   const [saving, setSaving] = useState(false);
@@ -47,6 +57,18 @@ export default function PollForm({ poll }: { poll?: PollDraft }) {
   function removeOption(index: number) {
     if (options.length <= 2) return;
     setOptions((prev) => prev.filter((_, i) => i !== index));
+  }
+
+  function updateField(index: number, key: keyof FieldDraft, value: string | boolean) {
+    setFields((prev) => prev.map((f, i) => (i === index ? { ...f, [key]: value } : f)));
+  }
+
+  function addField() {
+    setFields((prev) => [...prev, emptyField()]);
+  }
+
+  function removeField(index: number) {
+    setFields((prev) => prev.filter((_, i) => i !== index));
   }
 
   async function handleImageUpload(index: number, file: File) {
@@ -73,6 +95,8 @@ export default function PollForm({ poll }: { poll?: PollDraft }) {
       return;
     }
 
+    const validFields = fields.filter((f) => f.label.trim());
+
     setSaving(true);
 
     const payload = {
@@ -80,6 +104,7 @@ export default function PollForm({ poll }: { poll?: PollDraft }) {
       description,
       closesAt: closesAt || null,
       options: validOptions,
+      fields: validFields,
     };
 
     const res = isEdit
@@ -145,7 +170,7 @@ export default function PollForm({ poll }: { poll?: PollDraft }) {
 
       {/* Options */}
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 space-y-4">
-        <h2 className="font-semibold text-gray-700">Logo options</h2>
+        <h2 className="font-semibold text-gray-700">Poll options</h2>
         <p className="text-sm text-gray-500">Add at least 2 options. Each can have an image and a description.</p>
 
         {options.map((opt, i) => (
@@ -226,6 +251,52 @@ export default function PollForm({ poll }: { poll?: PollDraft }) {
           className="w-full py-2 border-2 border-dashed border-gray-200 rounded-xl text-sm text-gray-500 hover:border-blue-300 hover:text-blue-600 transition-colors"
         >
           + Add option
+        </button>
+      </div>
+
+      {/* Voter fields */}
+      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 space-y-4">
+        <div>
+          <h2 className="font-semibold text-gray-700">Voter information fields</h2>
+          <p className="text-sm text-gray-500 mt-1">
+            Request additional info from voters (e.g. name, phone, flat no.). Leave empty if not needed.
+          </p>
+        </div>
+
+        {fields.map((field, i) => (
+          <div key={i} className="flex items-center gap-3">
+            <input
+              type="text"
+              value={field.label}
+              onChange={(e) => updateField(i, "label", e.target.value)}
+              className="flex-1 px-3 py-2 rounded-lg border border-gray-200 bg-white text-gray-900 placeholder:text-gray-400 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Field label (e.g. Name)"
+            />
+            <label className="flex items-center gap-1.5 text-sm text-gray-600 shrink-0 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={field.required}
+                onChange={(e) => updateField(i, "required", e.target.checked)}
+                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              />
+              Required
+            </label>
+            <button
+              type="button"
+              onClick={() => removeField(i)}
+              className="text-xs text-red-500 hover:text-red-700 shrink-0"
+            >
+              Remove
+            </button>
+          </div>
+        ))}
+
+        <button
+          type="button"
+          onClick={addField}
+          className="w-full py-2 border-2 border-dashed border-gray-200 rounded-xl text-sm text-gray-500 hover:border-blue-300 hover:text-blue-600 transition-colors"
+        >
+          + Add voter field
         </button>
       </div>
 

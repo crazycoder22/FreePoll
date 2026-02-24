@@ -13,7 +13,7 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   const body = await request.json();
-  const { title, description, closesAt, options } = body;
+  const { title, description, closesAt, options, fields } = body;
 
   if (!title || !options || options.length < 2) {
     return NextResponse.json(
@@ -40,8 +40,17 @@ export async function POST(request: NextRequest) {
           })
         ),
       },
+      fields: {
+        create: (fields ?? []).map(
+          (f: { label: string; required?: boolean }, i: number) => ({
+            label: f.label,
+            required: f.required ?? false,
+            order: i,
+          })
+        ),
+      },
     },
-    include: { options: true },
+    include: { options: true, fields: true },
   });
 
   return NextResponse.json(poll, { status: 201 });

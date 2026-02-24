@@ -16,6 +16,7 @@ model Poll {
   updatedAt   DateTime     @updatedAt
   options     PollOption[]
   votes       Vote[]
+  fields      PollField[]
 }
 
 model PollOption {
@@ -31,15 +32,36 @@ model PollOption {
 }
 
 model Vote {
-  id         String     @id @default(cuid())
+  id         String      @id @default(cuid())
   pollId     String
   optionId   String
   voterToken String
-  createdAt  DateTime   @default(now())
-  poll       Poll       @relation(fields: [pollId], references: [id], onDelete: Cascade)
-  option     PollOption @relation(fields: [optionId], references: [id], onDelete: Cascade)
+  createdAt  DateTime    @default(now())
+  poll       Poll        @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  option     PollOption  @relation(fields: [optionId], references: [id], onDelete: Cascade)
+  voterInfo  VoterInfo[]
 
   @@unique([pollId, voterToken])
+}
+
+model PollField {
+  id        String      @id @default(cuid())
+  pollId    String
+  label     String
+  required  Boolean     @default(false)
+  order     Int         @default(0)
+  createdAt DateTime    @default(now())
+  poll      Poll        @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  voterInfo VoterInfo[]
+}
+
+model VoterInfo {
+  id      String    @id @default(cuid())
+  voteId  String
+  fieldId String
+  value   String
+  vote    Vote      @relation(fields: [voteId], references: [id], onDelete: Cascade)
+  field   PollField @relation(fields: [fieldId], references: [id], onDelete: Cascade)
 }
 
 enum PollStatus {

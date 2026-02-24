@@ -10,6 +10,7 @@ export async function GET(
     where: { id },
     include: {
       options: { orderBy: { order: "asc" } },
+      fields: { orderBy: { order: "asc" } },
       _count: { select: { votes: true } },
     },
   });
@@ -23,7 +24,7 @@ export async function PUT(
 ) {
   const { id } = await params;
   const body = await request.json();
-  const { title, description, status, closesAt, options } = body;
+  const { title, description, status, closesAt, options, fields } = body;
 
   const poll = await prisma.poll.update({
     where: { id },
@@ -56,9 +57,32 @@ export async function PUT(
     });
   }
 
+  // If fields provided, replace them all
+  if (fields) {
+    await prisma.voterInfo.deleteMany({
+      where: { field: { pollId: id } },
+    });
+    await prisma.pollField.deleteMany({ where: { pollId: id } });
+    if (fields.length > 0) {
+      await prisma.pollField.createMany({
+        data: fields.map(
+          (f: { label: string; required?: boolean }, i: number) => ({
+            pollId: id,
+            label: f.label,
+            required: f.required ?? false,
+            order: i,
+          })
+        ),
+      });
+    }
+  }
+
   const updated = await prisma.poll.findUnique({
     where: { id },
-    include: { options: { orderBy: { order: "asc" } } },
+    include: {
+      options: { orderBy: { order: "asc" } },
+      fields: { orderBy: { order: "asc" } },
+    },
   });
 
   return NextResponse.json(updated);

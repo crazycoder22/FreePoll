@@ -2,6 +2,8 @@ import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import PollForm from "../PollForm";
 
+export const dynamic = "force-dynamic";
+
 export default async function EditPollPage({
   params,
 }: {

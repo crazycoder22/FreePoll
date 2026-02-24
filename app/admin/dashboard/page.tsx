@@ -2,6 +2,8 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import PollActions from "./PollActions";
 
+export const dynamic = "force-dynamic";
+
 function StatusBadge({ status }: { status: string }) {
   const styles: Record<string, string> = {
     DRAFT: "bg-gray-100 text-gray-600",

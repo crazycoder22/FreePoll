@@ -28,6 +28,15 @@ interface VotingFormProps {
   likedOptionIds: string[];
 }
 
+function shuffleArray<T>(arr: T[]): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 export default function VotingForm({
   pollId,
   mode,
@@ -37,6 +46,7 @@ export default function VotingForm({
   votedOptionId: initialVotedOptionId,
   likedOptionIds: initialLikedOptionIds,
 }: VotingFormProps) {
+  const [shuffledOptions] = useState<Option[]>(() => shuffleArray(options));
   const [selected, setSelected] = useState<string | null>(null);
   const [liked, setLiked] = useState<Set<string>>(new Set());
   const [hasVoted, setHasVoted] = useState(initialHasVoted);
@@ -119,7 +129,7 @@ export default function VotingForm({
             </p>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
-            {options.map((option) => (
+            {shuffledOptions.map((option) => (
               <OptionCard
                 key={option.id}
                 option={option}
@@ -147,7 +157,7 @@ export default function VotingForm({
           </p>
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
-          {options.map((option) => (
+          {shuffledOptions.map((option) => (
             <OptionCard
               key={option.id}
               option={option}
@@ -174,7 +184,7 @@ export default function VotingForm({
       )}
 
       <div className="grid gap-4 sm:grid-cols-2">
-        {options.map((option) => (
+        {shuffledOptions.map((option) => (
           <OptionCard
             key={option.id}
             option={option}

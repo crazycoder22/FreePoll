@@ -52,23 +52,23 @@ export default async function ResultsPage({
   const winner = results[0];
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <header className="bg-white border-b border-gray-100">
-        <div className="max-w-3xl mx-auto px-4 py-4">
-          <span className="text-lg font-bold text-gray-900">FreePoll</span>
+    <div className="min-h-screen flex flex-col bg-gray-50">
+      <header className="bg-white border-b border-gray-200 shadow-sm">
+        <div className="max-w-3xl mx-auto px-6 py-4">
+          <span className="text-lg font-bold tracking-tight text-gray-900">FreePoll</span>
         </div>
       </header>
 
-      <main className="flex-1 max-w-3xl mx-auto w-full px-4 py-10">
+      <main className="flex-1 max-w-3xl mx-auto w-full px-6 py-10">
         <div className="mb-8">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gray-100 text-gray-500 text-xs font-medium mb-3">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gray-100 text-gray-600 text-xs font-medium mb-3">
             Poll closed
           </div>
-          <h1 className="text-3xl font-bold text-gray-900">{poll.title}</h1>
+          <h1 className="text-3xl font-extrabold tracking-tight text-gray-900">{poll.title}</h1>
           {poll.description && (
-            <p className="mt-2 text-gray-500">{poll.description}</p>
+            <p className="mt-3 text-base text-gray-600 leading-relaxed">{poll.description}</p>
           )}
-          <p className="mt-2 text-sm text-gray-400">{total} total votes</p>
+          <p className="mt-2 text-sm text-gray-500">{total} total votes</p>
         </div>
 
         {/* Winner highlight */}

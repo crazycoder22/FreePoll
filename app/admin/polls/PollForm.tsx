@@ -116,7 +116,7 @@ export default function PollForm({ poll }: { poll?: PollDraft }) {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             required
-            className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-2.5 rounded-lg border border-gray-200 bg-white text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="e.g. Vote for our new company logo"
           />
         </div>
@@ -126,7 +126,7 @@ export default function PollForm({ poll }: { poll?: PollDraft }) {
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={3}
-            className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+            className="w-full px-4 py-2.5 rounded-lg border border-gray-200 bg-white text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
             placeholder="Optional context for voters"
           />
         </div>
@@ -138,7 +138,7 @@ export default function PollForm({ poll }: { poll?: PollDraft }) {
             type="datetime-local"
             value={closesAt}
             onChange={(e) => setClosesAt(e.target.value)}
-            className="px-4 py-2.5 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="px-4 py-2.5 rounded-lg border border-gray-200 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
       </div>
@@ -169,7 +169,7 @@ export default function PollForm({ poll }: { poll?: PollDraft }) {
                 type="text"
                 value={opt.label}
                 onChange={(e) => updateOption(i, "label", e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-white text-gray-900 placeholder:text-gray-400 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="e.g. Logo A"
               />
             </div>
@@ -180,7 +180,7 @@ export default function PollForm({ poll }: { poll?: PollDraft }) {
                 type="text"
                 value={opt.description}
                 onChange={(e) => updateOption(i, "description", e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-white text-gray-900 placeholder:text-gray-400 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Short description for voters"
               />
             </div>

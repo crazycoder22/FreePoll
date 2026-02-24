@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 
-const geist = Geist({ subsets: ["latin"] });
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "FreePoll",
@@ -15,8 +15,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${geist.className} antialiased bg-gray-50 text-gray-900`}>
+    <html lang="en" className="light" style={{ colorScheme: "light" }}>
+      <body className={`${inter.className} antialiased bg-gray-50 text-gray-900`}>
         {children}
       </body>
     </html>

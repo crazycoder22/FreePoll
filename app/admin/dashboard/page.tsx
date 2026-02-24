@@ -26,7 +26,7 @@ export default async function DashboardPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Polls</h1>
+        <h1 className="text-2xl font-extrabold tracking-tight text-gray-900">Polls</h1>
         <Link
           href="/admin/polls/new"
           className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"

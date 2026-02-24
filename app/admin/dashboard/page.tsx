@@ -47,7 +47,7 @@ export default async function DashboardPage() {
           {polls.map((poll) => (
             <div
               key={poll.id}
-              className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 flex items-center justify-between gap-4"
+              className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
             >
               <div className="min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">

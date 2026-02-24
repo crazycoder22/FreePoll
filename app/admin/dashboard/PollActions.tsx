@@ -42,7 +42,7 @@ export default function PollActions({ poll }: PollActionsProps) {
   const pollUrl = `${origin}/poll/${poll.id}`;
 
   return (
-    <div className="flex items-center gap-2 shrink-0 flex-wrap justify-end">
+    <div className="flex items-center gap-2 flex-wrap sm:justify-end">
       {poll.status === "ACTIVE" && (
         <button
           onClick={() => navigator.clipboard.writeText(pollUrl)}

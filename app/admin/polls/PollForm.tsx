@@ -167,7 +167,7 @@ export default function PollForm({ poll }: { poll?: PollDraft }) {
             type="datetime-local"
             value={closesAt}
             onChange={(e) => setClosesAt(e.target.value)}
-            className="px-4 py-2.5 rounded-lg border border-gray-200 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full sm:w-auto px-4 py-2.5 rounded-lg border border-gray-200 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
       </div>
@@ -309,7 +309,7 @@ export default function PollForm({ poll }: { poll?: PollDraft }) {
         </div>
 
         {fields.map((field, i) => (
-          <div key={i} className="flex items-center gap-3">
+          <div key={i} className="flex flex-wrap items-center gap-2 sm:gap-3">
             <input
               type="text"
               value={field.label}

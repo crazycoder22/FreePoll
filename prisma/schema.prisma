@@ -75,3 +75,77 @@ enum PollMode {
   POLL
   LIKER
 }
+
+// ─── Survey models ───
+
+enum SurveyStatus {
+  DRAFT
+  ACTIVE
+  CLOSED
+}
+
+enum QuestionType {
+  SINGLE_SELECT
+  FREE_TEXT
+}
+
+model Survey {
+  id          String         @id @default(cuid())
+  title       String
+  description String?
+  status      SurveyStatus   @default(DRAFT)
+  closesAt    DateTime?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  questions   SurveyQuestion[]
+  responses   SurveyResponse[]
+}
+
+model SurveyQuestion {
+  id             String                @id @default(cuid())
+  surveyId       String
+  text           String
+  type           QuestionType          @default(SINGLE_SELECT)
+  required       Boolean               @default(true)
+  allowOtherText Boolean               @default(false)
+  order          Int                   @default(0)
+  createdAt      DateTime              @default(now())
+  survey         Survey                @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+  options        SurveyQuestionOption[]
+  answers        SurveyAnswer[]
+}
+
+model SurveyQuestionOption {
+  id         String         @id @default(cuid())
+  questionId String
+  label      String
+  order      Int            @default(0)
+  createdAt  DateTime       @default(now())
+  question   SurveyQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  answers    SurveyAnswer[]
+}
+
+model SurveyResponse {
+  id         String         @id @default(cuid())
+  surveyId   String
+  voterToken String
+  createdAt  DateTime       @default(now())
+  survey     Survey         @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+  answers    SurveyAnswer[]
+
+  @@unique([surveyId, voterToken])
+}
+
+model SurveyAnswer {
+  id         String                @id @default(cuid())
+  responseId String
+  questionId String
+  optionId   String?
+  textValue  String?
+  createdAt  DateTime              @default(now())
+  response   SurveyResponse        @relation(fields: [responseId], references: [id], onDelete: Cascade)
+  question   SurveyQuestion        @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  option     SurveyQuestionOption?  @relation(fields: [optionId], references: [id], onDelete: Cascade)
+
+  @@unique([responseId, questionId])
+}

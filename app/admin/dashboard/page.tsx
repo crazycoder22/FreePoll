@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import PollActions from "./PollActions";
+import SurveyActions from "./SurveyActions";
 
 export const dynamic = "force-dynamic";
 
@@ -18,59 +19,113 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 export default async function DashboardPage() {
-  const polls = await prisma.poll.findMany({
-    orderBy: { createdAt: "desc" },
-    include: { _count: { select: { votes: true, options: true } } },
-  });
+  const [polls, surveys] = await Promise.all([
+    prisma.poll.findMany({
+      orderBy: { createdAt: "desc" },
+      include: { _count: { select: { votes: true, options: true } } },
+    }),
+    prisma.survey.findMany({
+      orderBy: { createdAt: "desc" },
+      include: { _count: { select: { responses: true, questions: true } } },
+    }),
+  ]);
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-extrabold tracking-tight text-gray-900">Polls</h1>
-        <Link
-          href="/admin/polls/new"
-          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
-        >
-          + New poll
-        </Link>
-      </div>
-
-      {polls.length === 0 ? (
-        <div className="text-center py-20 text-gray-400">
-          <p className="text-lg">No polls yet.</p>
-          <Link href="/admin/polls/new" className="mt-2 inline-block text-blue-600 hover:underline text-sm">
-            Create your first poll →
+    <div className="space-y-12">
+      {/* Polls section */}
+      <div>
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-2xl font-extrabold tracking-tight text-gray-900">Polls</h1>
+          <Link
+            href="/admin/polls/new"
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
+          >
+            + New poll
           </Link>
         </div>
-      ) : (
-        <div className="space-y-3">
-          {polls.map((poll) => (
-            <div
-              key={poll.id}
-              className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
-            >
-              <div className="min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <h2 className="font-semibold text-gray-900 truncate">{poll.title}</h2>
-                  <StatusBadge status={poll.status} />
-                  {poll.mode === "LIKER" && (
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-rose-50 text-rose-600">
-                      ❤️ Liker
-                    </span>
-                  )}
+
+        {polls.length === 0 ? (
+          <div className="text-center py-20 text-gray-400">
+            <p className="text-lg">No polls yet.</p>
+            <Link href="/admin/polls/new" className="mt-2 inline-block text-blue-600 hover:underline text-sm">
+              Create your first poll →
+            </Link>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {polls.map((poll) => (
+              <div
+                key={poll.id}
+                className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
+              >
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h2 className="font-semibold text-gray-900 truncate">{poll.title}</h2>
+                    <StatusBadge status={poll.status} />
+                    {poll.mode === "LIKER" && (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-rose-50 text-rose-600">
+                        ❤️ Liker
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-sm text-gray-500 mt-0.5">
+                    {poll._count.options} options · {poll._count.votes} {poll.mode === "LIKER" ? "likes" : "votes"}
+                    {poll.closesAt && (
+                      <span> · closes {new Date(poll.closesAt).toLocaleDateString()}</span>
+                    )}
+                  </p>
                 </div>
-                <p className="text-sm text-gray-500 mt-0.5">
-                  {poll._count.options} options · {poll._count.votes} {poll.mode === "LIKER" ? "likes" : "votes"}
-                  {poll.closesAt && (
-                    <span> · closes {new Date(poll.closesAt).toLocaleDateString()}</span>
-                  )}
-                </p>
+                <PollActions poll={{ id: poll.id, status: poll.status, mode: poll.mode }} />
               </div>
-              <PollActions poll={{ id: poll.id, status: poll.status, mode: poll.mode }} />
-            </div>
-          ))}
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Surveys section */}
+      <div>
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-2xl font-bold text-gray-900">Surveys</h1>
+          <Link
+            href="/admin/surveys/new"
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
+          >
+            + New survey
+          </Link>
         </div>
-      )}
+
+        {surveys.length === 0 ? (
+          <div className="text-center py-12 text-gray-400">
+            <p className="text-lg">No surveys yet.</p>
+            <Link href="/admin/surveys/new" className="mt-2 inline-block text-blue-600 hover:underline text-sm">
+              Create your first survey →
+            </Link>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {surveys.map((survey) => (
+              <div
+                key={survey.id}
+                className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 flex items-center justify-between gap-4"
+              >
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h2 className="font-semibold text-gray-900 truncate">{survey.title}</h2>
+                    <StatusBadge status={survey.status} />
+                  </div>
+                  <p className="text-sm text-gray-500 mt-0.5">
+                    {survey._count.questions} questions · {survey._count.responses} responses
+                    {survey.closesAt && (
+                      <span> · closes {new Date(survey.closesAt).toLocaleDateString()}</span>
+                    )}
+                  </p>
+                </div>
+                <SurveyActions survey={{ id: survey.id, status: survey.status }} />
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

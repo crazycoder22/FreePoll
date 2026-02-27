@@ -19,9 +19,9 @@ export async function GET(
 
   if (!survey) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  if (survey.status !== "CLOSED") {
+  if (survey.status === "DRAFT") {
     return NextResponse.json(
-      { error: "Results are only available after the survey closes" },
+      { error: "Results are not available for draft surveys" },
       { status: 403 }
     );
   }

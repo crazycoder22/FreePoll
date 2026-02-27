@@ -20,12 +20,12 @@ export default async function SurveyResultsPage({
 
   if (!survey) notFound();
 
-  if (survey.status !== "CLOSED") {
+  if (survey.status === "DRAFT") {
     return (
       <div className="min-h-screen flex items-center justify-center px-4">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Results not available yet</h1>
-          <p className="text-gray-500">Results are shown once the survey closes.</p>
+          <p className="text-gray-500">This survey has not been activated yet.</p>
           <a
             href={`/survey/${id}`}
             className="mt-4 inline-block text-blue-600 hover:underline"
@@ -36,6 +36,8 @@ export default async function SurveyResultsPage({
       </div>
     );
   }
+
+  const isLive = survey.status === "ACTIVE";
 
   const totalResponses = await prisma.surveyResponse.count({
     where: { surveyId: id },
@@ -84,8 +86,10 @@ export default async function SurveyResultsPage({
 
       <main className="flex-1 max-w-3xl mx-auto w-full px-4 py-10">
         <div className="mb-8">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gray-100 text-gray-500 text-xs font-medium mb-3">
-            Survey closed
+          <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium mb-3 ${
+            isLive ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"
+          }`}>
+            {isLive ? "Live results" : "Survey closed"}
           </div>
           <h1 className="text-3xl font-bold text-gray-900">{survey.title}</h1>
           {survey.description && (

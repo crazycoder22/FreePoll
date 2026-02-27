@@ -30,6 +30,13 @@ export default function SurveyActions({ survey }: SurveyActionsProps) {
     setLoading(false);
   }
 
+  async function handleClone() {
+    setLoading(true);
+    await fetch(`/api/admin/surveys/${survey.id}/clone`, { method: "POST" });
+    router.refresh();
+    setLoading(false);
+  }
+
   async function handleDelete() {
     if (!confirm("Delete this survey and all its responses?")) return;
     setLoading(true);
@@ -51,7 +58,7 @@ export default function SurveyActions({ survey }: SurveyActionsProps) {
           Copy link
         </button>
       )}
-      {survey.status === "CLOSED" && (
+      {(survey.status === "ACTIVE" || survey.status === "CLOSED") && (
         <Link
           href={`/survey/${survey.id}/results`}
           className="px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
@@ -83,6 +90,13 @@ export default function SurveyActions({ survey }: SurveyActionsProps) {
           Close
         </button>
       )}
+      <button
+        onClick={handleClone}
+        disabled={loading}
+        className="px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+      >
+        Clone
+      </button>
       <button
         onClick={handleDelete}
         disabled={loading}

@@ -120,7 +120,7 @@ export default async function DashboardPage() {
                     )}
                   </p>
                 </div>
-                <SurveyActions survey={{ id: survey.id, status: survey.status }} />
+                <SurveyActions survey={{ id: survey.id, status: survey.status, title: survey.title }} />
               </div>
             ))}
           </div>

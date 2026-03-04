@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import ResponsesTable from "./ResponsesTable";
 
 export const dynamic = "force-dynamic";
 
@@ -60,47 +61,7 @@ export default async function ResponsesPage({
           <p className="text-lg">No responses yet.</p>
         </div>
       ) : (
-        <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-gray-100 bg-gray-50">
-                  <th className="text-left px-4 py-3 font-semibold text-gray-600">#</th>
-                  <th className="text-left px-4 py-3 font-semibold text-gray-600">Vote</th>
-                  {poll.fields.map((field) => (
-                    <th key={field.id} className="text-left px-4 py-3 font-semibold text-gray-600">
-                      {field.label}
-                    </th>
-                  ))}
-                  <th className="text-left px-4 py-3 font-semibold text-gray-600">Time</th>
-                </tr>
-              </thead>
-              <tbody>
-                {poll.votes.map((vote, i) => (
-                  <tr key={vote.id} className="border-b border-gray-50 hover:bg-gray-50">
-                    <td className="px-4 py-3 text-gray-400">{i + 1}</td>
-                    <td className="px-4 py-3">
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-medium">
-                        {vote.option.label}
-                      </span>
-                    </td>
-                    {poll.fields.map((field) => {
-                      const info = vote.voterInfo.find((vi) => vi.fieldId === field.id);
-                      return (
-                        <td key={field.id} className="px-4 py-3 text-gray-700">
-                          {info?.value || <span className="text-gray-300">—</span>}
-                        </td>
-                      );
-                    })}
-                    <td className="px-4 py-3 text-gray-400 text-xs whitespace-nowrap">
-                      {new Date(vote.createdAt).toLocaleString()}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+        <ResponsesTable votes={poll.votes} fields={poll.fields} />
       )}
     </div>
   );

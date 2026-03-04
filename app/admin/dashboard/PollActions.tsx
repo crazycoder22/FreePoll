@@ -11,6 +11,8 @@ interface PollActionsProps {
 export default function PollActions({ poll }: PollActionsProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [duplicating, setDuplicating] = useState(false);
 
   async function handleActivate() {
     setLoading(true);
@@ -38,17 +40,32 @@ export default function PollActions({ poll }: PollActionsProps) {
     setLoading(false);
   }
 
-  const origin = typeof window !== "undefined" ? window.location.origin : "";
-  const pollUrl = `${origin}/poll/${poll.id}`;
+  async function handleDuplicate() {
+    setDuplicating(true);
+    await fetch(`/api/admin/polls/${poll.id}/duplicate`, { method: "POST" });
+    router.refresh();
+    setDuplicating(false);
+  }
+
+  function handleCopyLink() {
+    const origin = typeof window !== "undefined" ? window.location.origin : "";
+    navigator.clipboard.writeText(`${origin}/poll/${poll.id}`);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
 
   return (
     <div className="flex items-center gap-2 flex-wrap sm:justify-end">
       {poll.status === "ACTIVE" && (
         <button
-          onClick={() => navigator.clipboard.writeText(pollUrl)}
-          className="px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+          onClick={handleCopyLink}
+          className={`px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors ${
+            copied
+              ? "border-green-300 bg-green-50 text-green-700"
+              : "border-gray-200 hover:bg-gray-50"
+          }`}
         >
-          Copy link
+          {copied ? "Copied!" : "Copy link"}
         </button>
       )}
       {poll.status === "CLOSED" && (
@@ -73,6 +90,13 @@ export default function PollActions({ poll }: PollActionsProps) {
       >
         Edit
       </Link>
+      <button
+        onClick={handleDuplicate}
+        disabled={duplicating || loading}
+        className="px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-200 hover:bg-gray-50 disabled:opacity-60 transition-colors"
+      >
+        {duplicating ? "Duplicating…" : "Duplicate"}
+      </button>
       {poll.status === "DRAFT" && (
         <button
           onClick={handleActivate}

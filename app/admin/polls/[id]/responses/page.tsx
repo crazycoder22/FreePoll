@@ -30,7 +30,7 @@ export default async function ResponsesPage({
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
         <div>
           <Link
             href="/admin/dashboard"
@@ -45,6 +45,14 @@ export default async function ResponsesPage({
             {poll.votes.length} {poll.votes.length === 1 ? "response" : "responses"}
           </p>
         </div>
+        {poll.votes.length > 0 && (
+          <a
+            href={`/api/admin/polls/${id}/export`}
+            className="self-start px-4 py-2 text-sm font-medium rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors whitespace-nowrap"
+          >
+            Download CSV
+          </a>
+        )}
       </div>
 
       {poll.votes.length === 0 ? (
